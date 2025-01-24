@@ -1,0 +1,62 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: career-skills-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - career-skills-network
+    depends_on:
+      - db
+
+  ml:
+    build:
+      context: .
+      dockerfile: docker/ml/Dockerfile
+    container_name: career-skills-ml
+    restart: unless-stopped
+    volumes:
+      - ./ml:/app
+    networks:
+      - career-skills-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: career-skills-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - career-skills-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: career-skills-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d/
+    networks:
+      - career-skills-network
+    depends_on:
+      - app
+
+networks:
+  career-skills-network:
+    driver: bridge
+
+volumes:
+  pgdata:
