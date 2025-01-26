@@ -56,19 +56,21 @@ class ReportController extends Controller
 
     public function careerPathInsights()
     {
-        $popularPaths = CareerPath::withCount('users')
-            ->orderByDesc('users_count')
+        $goalStatistics = DB::table('career_goals')
+            ->select('status', DB::raw('COUNT(*) as total_goals'))
+            ->addSelect(DB::raw('COUNT(DISTINCT user_id) as total_users'))
+            ->addSelect(DB::raw('AVG(progress) as average_progress'))
+            ->groupBy('status')
+            ->orderByDesc('total_goals')
+            ->get();
+
+        $topGoalTitles = DB::table('career_goals')
+            ->select('title', DB::raw('COUNT(*) as total'))
+            ->groupBy('title')
+            ->orderByDesc('total')
             ->limit(10)
             ->get();
 
-        $progressData = DB::table('career_goals')
-            ->select('career_paths.title', DB::raw('AVG(career_goals.progress) as avg_progress'))
-            ->join('career_paths', 'career_paths.id', '=', 'career_goals.career_path_id')
-            ->groupBy('career_paths.id', 'career_paths.title')
-            ->orderByDesc('avg_progress')
-            ->limit(10)
-            ->get();
-
-        return view('admin.reports.career-path-insights', compact('popularPaths', 'progressData'));
+        return view('admin.reports.career-path-insights', compact('goalStatistics', 'topGoalTitles'));
     }
 }

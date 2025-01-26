@@ -12,8 +12,8 @@ class CareerPathController extends Controller
 {
     public function index()
     {
-        $careerPaths = CareerPath::withCount('users')
-            ->with('skills')
+        $careerPaths = CareerPath::with(['skills', 'users'])
+            ->withCount('users')
             ->orderBy('title')
             ->paginate(1000);
         return view('admin.career-paths.index', compact('careerPaths'));
@@ -134,49 +134,42 @@ class CareerPathController extends Controller
     public function destroy(CareerPath $careerPath)
     {
         $careerPath->delete();
-        return redirect()->route('admin.career-paths.index')->with('success', 'Career path deleted successfully.');
+        return redirect()->route('admin.career-paths.index')
+            ->with('success', 'Career path deleted successfully.');
     }
 
     public function export()
     {
-        $careerPaths = CareerPath::with(['skills'])->get();
+        $careerPaths = CareerPath::with(['skills', 'users'])->get();
         
-        $csvData = [];
-        $csvData[] = [
-            'ID', 'Title', 'Description', 'Industry', 'Required Experience', 
-            'Estimated Salary', 'Skills', 'Created At', 'Updated At'
-        ];
-
-        foreach ($careerPaths as $careerPath) {
-            $csvData[] = [
-                $careerPath->id,
-                $careerPath->title,
-                $careerPath->description,
-                $careerPath->industry,
-                $careerPath->required_experience,
-                $careerPath->estimated_salary,
-                $careerPath->skills->pluck('name')->implode(', '),
-                $careerPath->created_at,
-                $careerPath->updated_at,
-            ];
-        }
-
-        $filename = 'career_paths_' . date('Y-m-d') . '.csv';
-        
+        $csvFileName = 'career_paths_' . date('Y-m-d') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
         ];
 
-        $callback = function() use ($csvData) {
-            $file = fopen('php://output', 'w');
-            foreach ($csvData as $row) {
-                fputcsv($file, $row);
-            }
-            fclose($file);
-        };
+        $handle = fopen('php://temp', 'w+');
+        
+        // Add headers
+        fputcsv($handle, ['Title', 'Description', 'Required Experience (Years)', 'Total Users', 'Required Skills']);
 
-        return response()->stream($callback, 200, $headers);
+        // Add data
+        foreach ($careerPaths as $path) {
+            $skills = $path->skills->pluck('name')->implode(', ');
+            fputcsv($handle, [
+                $path->title,
+                $path->description,
+                $path->required_experience_years,
+                $path->users->count(),
+                $skills
+            ]);
+        }
+
+        rewind($handle);
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return response($content, 200, $headers);
     }
 
     public function import(Request $request)
@@ -188,36 +181,48 @@ class CareerPathController extends Controller
         $file = $request->file('file');
         $path = $file->getRealPath();
         
+        $handle = fopen($path, 'r');
+        $header = fgetcsv($handle); // Skip header row
+        
+        $importCount = 0;
+        $errors = [];
+        
         DB::beginTransaction();
         try {
-            if (($handle = fopen($path, 'r')) !== false) {
-                // Skip header row
-                fgetcsv($handle);
-                
-                while (($data = fgetcsv($handle)) !== false) {
+            while (($row = fgetcsv($handle)) !== false) {
+                if (count($row) >= 3) { // Ensure we have at least title, description, and experience
                     $careerPath = CareerPath::create([
-                        'title' => $data[1],
-                        'description' => $data[2],
-                        'industry' => $data[3],
-                        'required_experience' => $data[4],
-                        'estimated_salary' => $data[5],
+                        'title' => $row[0],
+                        'description' => $row[1],
+                        'required_experience_years' => intval($row[2])
                     ]);
-
-                    // Handle skills
-                    if (!empty($data[6])) {
-                        $skillNames = array_map('trim', explode(',', $data[6]));
-                        $skillIds = Skill::whereIn('name', $skillNames)->pluck('id');
-                        $careerPath->skills()->attach($skillIds);
+                    
+                    // If skills are provided in the CSV (column 4)
+                    if (isset($row[4]) && !empty($row[4])) {
+                        $skillNames = array_map('trim', explode(',', $row[4]));
+                        foreach ($skillNames as $skillName) {
+                            $skill = Skill::firstOrCreate(['name' => $skillName]);
+                            $careerPath->skills()->attach($skill->id, ['importance_level' => 3]); // Default importance
+                        }
                     }
+                    
+                    $importCount++;
+                } else {
+                    $errors[] = "Row " . ($importCount + 2) . " has invalid format";
                 }
-                fclose($handle);
             }
             
             DB::commit();
+            fclose($handle);
+            
             return redirect()->route('admin.career-paths.index')
-                ->with('success', 'Career paths imported successfully.');
+                ->with('success', "Successfully imported {$importCount} career paths" . 
+                    (count($errors) > 0 ? " with " . count($errors) . " errors" : ""));
+                    
         } catch (\Exception $e) {
             DB::rollBack();
+            fclose($handle);
+            
             return redirect()->route('admin.career-paths.index')
                 ->with('error', 'Error importing career paths: ' . $e->getMessage());
         }

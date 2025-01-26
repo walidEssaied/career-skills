@@ -95,10 +95,12 @@ class UserController extends Controller
         $validated = $request->validate([
             'skill_id' => ['required', 'exists:skills,id'],
             'proficiency_level' => ['required', 'in:beginner,intermediate,advanced,expert'],
+            'target_level' => ['required', 'in:beginner,intermediate,advanced,expert'],
         ]);
 
         $user->skills()->attach($validated['skill_id'], [
             'proficiency_level' => $validated['proficiency_level'],
+            'target_level' => $validated['target_level'],
         ]);
 
         return redirect()->route('admin.users.skills.index', $user)

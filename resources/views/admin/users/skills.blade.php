@@ -98,7 +98,7 @@
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-            <form action="{{ route('admin.users.skills.store', $user->id) }}" method="POST">
+            <form action="{{ route('admin.users.skills.store', $user) }}" method="POST">
                 @csrf
                 <div>
                     <div class="mt-3 text-center sm:mt-0 sm:text-left">
@@ -114,9 +114,21 @@
                             </select>
                         </div>
                         <div class="mt-4">
-                            <label for="proficiency_level" class="block text-sm font-medium text-gray-700">Proficiency Level</label>
+                            <label for="proficiency_level" class="block text-sm font-medium text-gray-700">Current Proficiency Level</label>
                             <select name="proficiency_level" id="proficiency_level" required
                                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="">Select level</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+                        <div class="mt-4">
+                            <label for="target_level" class="block text-sm font-medium text-gray-700">Target Level</label>
+                            <select name="target_level" id="target_level" required
+                                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="">Select target level</option>
                                 <option value="beginner">Beginner</option>
                                 <option value="intermediate">Intermediate</option>
                                 <option value="advanced">Advanced</option>

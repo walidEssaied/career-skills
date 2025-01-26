@@ -36,10 +36,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // User Management
     Route::resource('users', UserController::class);
-    Route::get('users/{user}/skills', [UserController::class, 'skills'])->name('users.skills');
-    Route::get('users/{user}/career-goals', [UserController::class, 'careerGoals'])->name('users.career-goals');
-    Route::get('users/{user}/courses', [UserController::class, 'courses'])->name('users.courses');
-    
+    Route::get('users/export', [UserController::class, 'export'])->name('users.export');
+    Route::post('users/import', [UserController::class, 'import'])->name('users.import');
+
+    // User Skills, Goals, and Courses Management
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('{user}/skills', [UserController::class, 'showSkills'])->name('skills.index');
+        Route::post('{user}/skills', [UserController::class, 'addSkill'])->name('skills.store');
+        Route::delete('{user}/skills/{skill}', [UserController::class, 'removeSkill'])->name('skills.destroy');
+        
+        Route::get('{user}/goals', [UserController::class, 'showGoals'])->name('goals.index');
+        Route::post('{user}/goals', [UserController::class, 'addGoal'])->name('goals.store');
+        Route::delete('{user}/goals/{goal}', [UserController::class, 'removeGoal'])->name('goals.destroy');
+        
+        Route::get('{user}/courses', [UserController::class, 'showCourses'])->name('courses.index');
+        Route::post('{user}/courses', [UserController::class, 'addCourse'])->name('courses.store');
+        Route::delete('{user}/courses/{course}', [UserController::class, 'removeCourse'])->name('courses.destroy');
+    });
+
     // Reports
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/user-growth', [ReportController::class, 'userGrowth'])->name('user-growth');

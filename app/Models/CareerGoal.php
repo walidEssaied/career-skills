@@ -12,20 +12,17 @@ class CareerGoal extends Model
 
     protected $fillable = [
         'user_id',
-        'career_path_id',
         'title',
         'description',
         'target_date',
-        'status',
         'progress',
-        'priority',
+        'status',
         'notes',
     ];
 
     protected $casts = [
         'target_date' => 'datetime',
         'progress' => 'integer',
-        'priority' => 'integer',
     ];
 
     const STATUS_NOT_STARTED = 'not_started';

@@ -42,45 +42,64 @@ api.interceptors.response.use(
 );
 
 export const endpoints = {
-    // Auth
+    // Auth endpoints
     login: '/login',
     register: '/register',
     logout: '/logout',
     
-    // User Profile
-    profile: '/profile',
-    updateProfile: '/profile/update',
+    // User endpoints
+    profile: '/user/profile',
+    updateProfile: '/user/profile/update',
     
-    // Skills
+    // Skills endpoints
     skills: '/skills',
     userSkills: '/user/skills',
     updateSkill: (skillId: number) => `/user/skills/${skillId}`,
     
-    // Career Goals
+    // Goals endpoints
     goals: '/goals',
     createGoal: '/goals',
     updateGoal: (goalId: number) => `/goals/${goalId}`,
     deleteGoal: (goalId: number) => `/goals/${goalId}`,
+    goalStatistics: '/goals/statistics',
     
-    // Courses
+    // Course endpoints
     courses: '/courses',
+    userCourses: '/user/courses',
     enrollCourse: (courseId: number) => `/courses/${courseId}/enroll`,
+    completeCourse: (courseId: number) => `/courses/${courseId}/complete`,
     updateCourseProgress: (courseId: number) => `/courses/${courseId}/progress`,
     
-    // Career Paths
+    // Career Path endpoints
     careerPaths: '/career-paths',
+    userCareerPaths: '/user/career-paths',
+    joinCareerPath: (pathId: number) => `/career-paths/${pathId}/join`,
+    leaveCareerPath: (pathId: number) => `/career-paths/${pathId}/leave`,
     careerPathDetails: (pathId: number) => `/career-paths/${pathId}`,
+    
+    // Networking endpoints
+    connections: '/connections',
+    connectionRequests: '/connections/requests',
+    sendRequest: (userId: number) => `/connections/request/${userId}`,
+    acceptRequest: (requestId: number) => `/connections/accept/${requestId}`,
+    rejectRequest: (requestId: number) => `/connections/reject/${requestId}`,
+    messages: '/messages',
+    sendMessage: (userId: number) => `/messages/send/${userId}`,
+    
+    // ML endpoints
+    mlRecommendations: '/ml/recommendations',
+    mlCareerPrediction: '/ml/career-prediction',
+    mlSkillGaps: '/ml/skill-gaps',
+    mlProgressPrediction: '/ml/progress-prediction',
     
     // Recommendations
     recommendedSkills: '/recommendations/skills',
     recommendedCourses: '/recommendations/courses',
     recommendedPaths: '/recommendations/career-paths',
     
-    // Networking
+    // Mentors
     mentors: '/mentors',
     connectMentor: (mentorId: number) => `/mentors/${mentorId}/connect`,
-    messages: '/messages',
-    sendMessage: (userId: number) => `/messages/${userId}`,
 };
 
 export default api;

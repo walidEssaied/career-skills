@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             SkillsSeeder::class,
             CareerPathsSeeder::class,
             CourseSeeder::class,
+            CareerGoalSeeder::class,
             DemoDataSeeder::class,
         ]);
     }

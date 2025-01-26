@@ -58,15 +58,15 @@
                                         class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md">
                                         Profile
                                     </a>
-                                    <a href="{{ route('admin.users.skills', $user) }}" 
+                                    <a href="{{ route('admin.users.skills.index', $user) }}" 
                                         class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md">
                                         Skills
                                     </a>
-                                    <a href="{{ route('admin.users.career-goals', $user) }}" 
+                                    <a href="{{ route('admin.users.goals.index', $user) }}" 
                                         class="text-green-600 hover:text-green-900 bg-green-50 px-3 py-1 rounded-md">
                                         Goals
                                     </a>
-                                    <a href="{{ route('admin.users.courses', $user) }}" 
+                                    <a href="{{ route('admin.users.courses.index', $user) }}" 
                                         class="text-yellow-600 hover:text-yellow-900 bg-yellow-50 px-3 py-1 rounded-md">
                                         Courses
                                     </a>

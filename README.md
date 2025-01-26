@@ -1,178 +1,143 @@
 # Career Skills Tracker
 
-A comprehensive career development platform built with Laravel, React, and Machine Learning capabilities.
+A modern web application built with Laravel and React for tracking professional skills, career paths, and learning progress.
 
-## Project Overview
+## Features
 
-### Technology Stack
-- **Backend**: Laravel 10 (PHP)
-- **Frontend**: React + TypeScript + Vite
-- **Database**: PostgreSQL (Docker) / SQLite (Local)
-- **ML Service**: Python Flask with scikit-learn
-- **Containerization**: Docker & Docker Compose
-- **Authentication**: Laravel Sanctum
+### Skills Management
+- Track and update your professional skills
+- Set proficiency levels and target goals for each skill
+- Visual progress tracking and skill gap analysis
+- Skill recommendations based on your career goals
 
-### Key Features
-1. **Authentication System**
-   - Login/Register with dark theme UI
-   - Token-based authentication
-   - Remember me functionality
-   - Password reset capability
+### Career Paths
+- Browse and join various career paths
+- Detailed skill requirements for each career path
+- Real-time skill gap analysis when joining a path
+- Progress tracking towards career goals
+- Visual indicators for skill achievements and gaps
 
-2. **Career Management**
-   - Skills tracking and assessment
-   - Career path recommendations
-   - Goal setting and tracking
-   - Course recommendations
+### Course Management
+- Access a curated list of professional development courses
+- Track course progress and completion status
+- Course recommendations based on skill gaps
+- Integration with various course providers
+- Detailed course information including duration, provider, and difficulty level
 
-3. **Machine Learning Integration**
-   - Course recommendations based on user skills
-   - Career path prediction
-   - Skill gap analysis
-   - TF-IDF vectorization for skill matching
+### AI-Powered Insights
+- Personalized course recommendations based on your skill profile
+- Career path predictions using skill matching algorithms
+- Detailed skill gap analysis with importance levels
+- Progress visualization and tracking
+- Smart learning path suggestions
 
-4. **Dashboard Features**
-   - Skills dashboard
-   - Course progress tracking
-   - Goals management
-   - Profile management
+### User Dashboard
+- Comprehensive overview of your learning journey
+- Visual progress tracking
+- Skill gap analysis
+- Course completion statistics
+- Career path progress
 
-## Setup Instructions
+## Technology Stack
+
+### Backend
+- Laravel 10.x
+- PHP 8.x
+- MySQL/SQLite
+- RESTful API architecture
+- JWT Authentication
+
+### Frontend
+- React 18
+- TypeScript
+- Redux Toolkit for state management
+- Tailwind CSS for styling
+- Heroicons for UI elements
+
+## Getting Started
 
 ### Prerequisites
-- Docker and Docker Compose
-- Node.js (v16+)
-- PHP 8.1+
+- PHP >= 8.0
 - Composer
-- Python 3.8+ (for ML service)
+- Node.js >= 14
+- npm or yarn
 
-### Step 1: Environment Setup
+### Installation
+
+1. Clone the repository:
 ```bash
-# Clone the repository
-git clone https://github.com/walidEssaied/career-skills.git
-cd career-skills
+git clone https://github.com/yourusername/career-skills-tracker.git
+cd career-skills-tracker
+```
 
-# Copy environment files
-cp .env.example .env
-
-# Install PHP dependencies
+2. Install PHP dependencies:
+```bash
 composer install
+```
 
-# Install frontend dependencies
+3. Set up environment variables:
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. Set up the database:
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+5. Install frontend dependencies:
+```bash
 cd frontend
 npm install
 ```
 
-### Step 2: Database Setup
+### Running the Application
+
+1. Start the Laravel backend:
 ```bash
-# Using Docker (recommended)
-docker-compose up -d db
-
-# Or for SQLite (local development)
-touch database/database.sqlite
-```
-
-### Step 3: Application Setup
-```bash
-# Generate application key
-php artisan key:generate
-
-# Run migrations
-php artisan migrate
-
-# Seed the database
-php artisan db:seed
-
-# Build frontend assets
-cd frontend
-npm run build
-```
-
-### Step 4: ML Service Setup
-```bash
-# Setup Python virtual environment
-python -m venv ml_env
-source ml_env/bin/activate  # On Windows: ml_env\Scripts\activate
-
-# Install ML dependencies
-cd ml
-pip install -r requirements.txt
-```
-
-### Step 5: Start the Services
-```bash
-# Using Docker (all services)
-docker-compose up -d
-
-# Or start services individually:
-# Laravel
 php artisan serve
+```
 
-# Frontend (development)
+2. Start the React frontend:
+```bash
 cd frontend
-npm run dev
-
-# ML Service
-cd ml
-python recommender.py
+npm start
 ```
 
-## Project Structure
+The application will be available at `http://localhost:3000`
 
-```
-career-skills/
-├── app/                    # Laravel application code
-│   ├── Http/              # Controllers, Middleware
-│   ├── Models/            # Eloquent models
-│   └── Services/          # Business logic services
-├── database/              # Migrations and seeders
-├── frontend/              # React frontend application
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── services/      # API services
-│   │   └── store/         # Redux store
-├── ml/                    # Machine Learning service
-│   ├── recommender.py     # ML recommendation system
-│   └── requirements.txt   # Python dependencies
-└── docker/               # Docker configuration files
-```
+## Features in Detail
 
-## API Endpoints
+### AI-Powered Career Insights
+The application uses advanced algorithms to provide:
+- Course recommendations based on your current skill levels and career goals
+- Career path predictions with confidence scores
+- Detailed skill gap analysis with importance levels
+- Visual progress tracking and recommendations
 
-### Authentication
-- POST `/api/register` - User registration
-- POST `/api/login` - User login
-- POST `/api/logout` - User logout
+### Skill Management
+- Set and track proficiency levels (1-5 scale)
+- Visual progress indicators
+- Skill gap analysis with recommended levels
+- Importance-based prioritization
 
-### Career Management
-- GET `/api/goals` - List user goals
-- POST `/api/goals` - Create new goal
-- GET `/api/skills` - List user skills
-- GET `/api/courses` - List available courses
+### Career Paths
+- Multiple career paths with detailed skill requirements
+- Real-time skill gap analysis
+- Progress tracking
+- Course recommendations for skill improvement
 
-### ML Endpoints
-- GET `/api/ml/recommendations` - Get course recommendations
-- GET `/api/ml/career-prediction` - Get career path predictions
-- POST `/api/ml/skill-gaps` - Analyze skill gaps
-
-## Development Notes
-
-1. **Environment Configuration**
-   - Configure database settings in `.env`
-   - Set up ML service URL in frontend environment
-
-2. **Docker Usage**
-   - Use `docker-compose up -d` for full stack deployment
-   - Individual services can be started with `docker-compose up [service]`
-
-3. **ML Model Training**
-   - Initial training data is provided in seeders
-   - Models are automatically trained on first run
-   - Retrain models using admin panel
+### Course Integration
+- Course catalog with detailed information
+- Progress tracking
+- Completion certificates
+- Integration with external course providers
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 

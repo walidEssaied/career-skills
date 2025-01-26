@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Skill;
 use App\Models\Course;
 use App\Models\CareerPath;
+use App\Models\CareerGoal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -20,6 +21,7 @@ class DashboardController extends Controller
         $totalSkills = Skill::count();
         $totalCourses = Course::count();
         $totalCareerPaths = CareerPath::count();
+        $totalGoalStatuses = CareerGoal::count();
 
         // Get most popular skills
         $popularSkills = DB::table('user_skills')
@@ -30,11 +32,10 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Get most popular career paths
-        $popularCareerPaths = DB::table('career_goals')
-            ->select('career_paths.title', DB::raw('count(*) as total'))
-            ->join('career_paths', 'career_paths.id', '=', 'career_goals.career_path_id')
-            ->groupBy('career_paths.id', 'career_paths.title')
+        // Get most popular goal statuses
+        $popularGoalStatuses = DB::table('career_goals')
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
             ->orderByDesc('total')
             ->limit(5)
             ->get();
@@ -66,8 +67,9 @@ class DashboardController extends Controller
             'totalSkills',
             'totalCourses',
             'totalCareerPaths',
+            'totalGoalStatuses',
             'popularSkills',
-            'popularCareerPaths',
+            'popularGoalStatuses',
             'recentUsers',
             'courseEnrollments'
         ));

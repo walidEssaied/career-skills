@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Course extends Model
 {
@@ -18,6 +19,7 @@ class Course extends Model
         'duration',
         'difficulty_level',
         'price',
+        'currency',
         'rating',
         'reviews_count',
         'language',
@@ -28,6 +30,7 @@ class Course extends Model
     protected $casts = [
         'metadata' => 'array',
         'certificate_offered' => 'boolean',
+        'price' => 'float',
     ];
 
     /**
@@ -35,16 +38,19 @@ class Course extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'course_enrollments')
-                    ->withTimestamps()
-                    ->withPivot('completed_at', 'progress');
+        return $this->belongsToMany(User::class, 'user_courses')
+                    ->withPivot(['progress', 'status', 'rating'])
+                    ->withTimestamps();
     }
 
-    public function skills()
+    public function skills(): BelongsToMany
     {
-        return $this->belongsToMany(Skill::class, 'course_skills')
-            ->withPivot('skill_level_gained')
-            ->withTimestamps();
+        return $this->belongsToMany(Skill::class, 'course_skill');
+    }
+
+    public function userCourses(): HasMany
+    {
+        return $this->hasMany(UserCourse::class);
     }
 
     public function careerPaths()

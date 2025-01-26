@@ -50,6 +50,17 @@ class User extends Authenticatable
     ];
 
     /**
+     * The attributes to cast on pivot tables.
+     *
+     * @var array
+     */
+    protected $pivotCasts = [
+        'completion_date' => 'datetime',
+        'last_practiced_at' => 'datetime',
+        'target_completion_date' => 'datetime',
+    ];
+
+    /**
      * Check if the user is an administrator.
      *
      * @return bool
@@ -83,8 +94,9 @@ class User extends Authenticatable
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'user_courses')
-            ->withPivot('status', 'progress', 'completion_date')
-            ->withTimestamps();
+            ->withPivot(['status', 'progress', 'completion_date'])
+            ->withTimestamps()
+            ->using(UserCourse::class);
     }
 
     /**
@@ -92,8 +104,8 @@ class User extends Authenticatable
      */
     public function careerPaths()
     {
-        return $this->belongsToMany(CareerPath::class, 'career_goals')
-            ->withPivot('status', 'progress', 'target_completion_date', 'notes')
+        return $this->belongsToMany(CareerPath::class, 'user_career_paths')
+            ->withPivot(['target_completion_date', 'completed_at'])
             ->withTimestamps();
     }
 
@@ -128,8 +140,11 @@ class User extends Authenticatable
 
         foreach ($requiredSkills as $requiredSkill) {
             $userSkill = $userSkills->firstWhere('id', $requiredSkill->id);
-            if ($userSkill) {
-                $totalProgress += ($userSkill->pivot->proficiency_level / 5) * 100;
+            $requiredLevel = $requiredSkill->pivot->importance_level ?? 5; // Default to 5 if not set
+            
+            if ($userSkill && $userSkill->pivot && isset($userSkill->pivot->proficiency_level)) {
+                $progress = min(($userSkill->pivot->proficiency_level / $requiredLevel) * 100, 100);
+                $totalProgress += $progress;
             }
         }
 

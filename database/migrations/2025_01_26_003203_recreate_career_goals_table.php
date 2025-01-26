@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_courses', function (Blueprint $table) {
+        Schema::dropIfExists('career_goals');
+        
+        Schema::create('career_goals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('course_id')->constrained()->onDelete('cascade');
-            $table->string('status')->default('not_started');
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->timestamp('target_date')->nullable();
             $table->integer('progress')->default(0);
-            $table->integer('rating')->nullable();
-            $table->timestamp('completion_date')->nullable();
+            $table->enum('status', ['not_started', 'in_progress', 'completed', 'on_hold'])->default('not_started');
+            $table->text('notes')->nullable();
             $table->timestamps();
-
-            // Prevent duplicate enrollments
-            $table->unique(['user_id', 'course_id']);
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_courses');
+        Schema::dropIfExists('career_goals');
     }
 };

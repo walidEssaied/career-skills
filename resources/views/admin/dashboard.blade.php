@@ -40,8 +40,8 @@
                     </svg>
                 </div>
                 <div class="ml-4">
-                    <h3 class="text-gray-500 text-sm">Career Paths</h3>
-                    <p class="text-2xl font-semibold text-gray-800">{{ $totalCareerPaths }}</p>
+                    <h3 class="text-gray-500 text-sm">Goal Statuses</h3>
+                    <p class="text-2xl font-semibold text-gray-800">{{ $totalGoalStatuses }}</p>
                 </div>
             </div>
         </div>
@@ -79,20 +79,18 @@
             </div>
         </div>
 
-        <!-- Popular Career Paths -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b">
-                <h2 class="text-lg font-semibold text-gray-800">Popular Career Paths</h2>
-            </div>
-            <div class="p-6">
-                <ul class="space-y-4">
-                    @foreach($popularCareerPaths as $path)
-                    <li class="flex items-center justify-between">
-                        <span class="text-gray-600">{{ $path->title }}</span>
-                        <span class="px-3 py-1 text-sm text-green-500 bg-green-100 rounded-full">{{ $path->total }} users</span>
-                    </li>
+        <!-- Popular Goal Statuses -->
+        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="p-6 bg-white border-b border-gray-200">
+                <h3 class="text-lg font-semibold mb-4">Popular Goal Statuses</h3>
+                <div class="space-y-4">
+                    @foreach($popularGoalStatuses as $status)
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $status->status)) }}</span>
+                            <span class="text-indigo-600 font-semibold">{{ $status->total }}</span>
+                        </div>
                     @endforeach
-                </ul>
+                </div>
             </div>
         </div>
 

@@ -45,8 +45,8 @@ class CareerPath extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'career_goals')
-            ->withPivot(['target_completion_date', 'progress', 'status', 'notes'])
+        return $this->belongsToMany(User::class, 'user_career_paths')
+            ->withPivot(['target_completion_date', 'completed_at'])
             ->withTimestamps();
     }
 }

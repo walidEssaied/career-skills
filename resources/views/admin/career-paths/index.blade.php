@@ -18,21 +18,28 @@
     </div>
 
     <!-- Import Form -->
-    <div id="importForm" class="hidden bg-white rounded-lg shadow p-6">
+    <div id="importForm" class="hidden bg-white p-6 rounded-lg shadow mb-6">
+        <h2 class="text-lg font-semibold mb-4">Import Career Paths</h2>
         <form action="{{ route('admin.career-paths.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
             <div>
                 <label for="file" class="block text-sm font-medium text-gray-700">Choose CSV File</label>
-                <input type="file" name="file" id="file" accept=".csv" required class="mt-1 block w-full text-sm text-gray-500
+                <input type="file" name="file" id="file" accept=".csv" required
+                    class="mt-1 block w-full text-sm text-gray-500
                     file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0
+                    file:rounded-md file:border-0
                     file:text-sm file:font-semibold
                     file:bg-blue-50 file:text-blue-700
                     hover:file:bg-blue-100">
+                <p class="mt-1 text-sm text-gray-500">
+                    File should be a CSV with columns: Title, Description, Required Experience (Years), Total Users, Required Skills
+                </p>
             </div>
-            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                Upload and Import
-            </button>
+            <div class="flex justify-end">
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    Import
+                </button>
+            </div>
         </form>
     </div>
 

@@ -1,247 +1,215 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
-import { fetchGoals, createGoal, updateGoal, deleteGoal } from '../../store/slices/goalsSlice';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
-
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement);
-
-interface NewGoalFormData {
-    title: string;
-    description: string;
-    target_date: string;
-    career_path_id: string;
-    priority: string;
-}
+import {
+    Goal,
+    fetchGoals,
+    createGoal,
+    updateGoal,
+    deleteGoal,
+    updateGoalProgress,
+} from '../../store/slices/goalsSlice';
+import GoalStatistics from './GoalStatistics';
 
 const GoalsDashboard: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { items: goals, loading, error } = useSelector((state: RootState) => state.goals);
-    const [showNewGoalForm, setShowNewGoalForm] = useState(false);
-    const [newGoalData, setNewGoalData] = useState<NewGoalFormData>({
+    const { items: goals, loading } = useSelector((state: RootState) => state.goals);
+    
+    const [newGoal, setNewGoal] = useState<Partial<Goal>>({
         title: '',
         description: '',
-        target_date: '',
-        career_path_id: '',
+        status: 'not_started',
         priority: 'medium',
+        progress: 0,
+        target_date: '',
+        notes: '',
     });
 
     useEffect(() => {
         dispatch(fetchGoals());
     }, [dispatch]);
 
-    const handleCreateGoal = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await dispatch(createGoal(newGoalData)).unwrap();
-            setShowNewGoalForm(false);
-            setNewGoalData({
+            await dispatch(createGoal(newGoal)).unwrap();
+            setNewGoal({
                 title: '',
                 description: '',
-                target_date: '',
-                career_path_id: '',
+                status: 'not_started',
                 priority: 'medium',
+                progress: 0,
+                target_date: '',
+                notes: '',
             });
         } catch (error) {
-            // Error handling is done in the goals slice
+            console.error('Failed to create goal:', error);
         }
     };
 
-    const getGoalStatusData = () => {
-        const statusCounts = goals.reduce((acc: { [key: string]: number }, goal) => {
-            acc[goal.status] = (acc[goal.status] || 0) + 1;
-            return acc;
-        }, {});
-
-        return {
-            labels: ['Not Started', 'In Progress', 'Completed', 'On Hold'],
-            datasets: [{
-                data: [
-                    statusCounts['not_started'] || 0,
-                    statusCounts['in_progress'] || 0,
-                    statusCounts['completed'] || 0,
-                    statusCounts['on_hold'] || 0,
-                ],
-                backgroundColor: [
-                    '#bae6fd', // Light blue
-                    '#7dd3fc', // Blue
-                    '#38bdf8', // Medium blue
-                    '#0ea5e9', // Dark blue
-                ],
-            }],
-        };
+    const handleProgressUpdate = async (id: number, progress: number) => {
+        try {
+            await dispatch(updateGoalProgress({ id, progress })).unwrap();
+        } catch (error) {
+            console.error('Failed to update progress:', error);
+        }
     };
 
-    if (loading) {
-        return <div className="flex justify-center items-center h-64">Loading...</div>;
-    }
+    const handleStatusUpdate = async (id: number, status: Goal['status']) => {
+        try {
+            await dispatch(updateGoal({ id, data: { status } })).unwrap();
+        } catch (error) {
+            console.error('Failed to update status:', error);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        if (window.confirm('Are you sure you want to delete this goal?')) {
+            try {
+                await dispatch(deleteGoal(id)).unwrap();
+            } catch (error) {
+                console.error('Failed to delete goal:', error);
+            }
+        }
+    };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div className="md:flex md:items-center md:justify-between">
-                <div className="flex-1 min-w-0">
-                    <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-                        Career Goals
-                    </h2>
-                </div>
-                <div className="mt-4 flex md:mt-0 md:ml-4">
-                    <button
-                        type="button"
-                        onClick={() => setShowNewGoalForm(true)}
-                        className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                    >
-                        Add New Goal
-                    </button>
-                </div>
+        <div className="container mx-auto px-4 py-8">
+            <div className="mb-8">
+                <GoalStatistics />
             </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-                {/* Goals Overview Chart */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Goals Overview</h3>
-                    <div className="h-64">
-                        <Doughnut data={getGoalStatusData()} />
+            {/* Add New Goal Form */}
+            <div className="bg-white rounded-lg shadow p-6 mb-8">
+                <h2 className="text-xl font-semibold mb-4">Add New Goal</h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Title</label>
+                        <input
+                            type="text"
+                            value={newGoal.title}
+                            onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            required
+                        />
                     </div>
-                </div>
-
-                {/* New Goal Form */}
-                {showNewGoalForm && (
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">Create New Goal</h3>
-                        <form onSubmit={handleCreateGoal} className="space-y-4">
-                            <div>
-                                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                                    Title
-                                </label>
-                                <input
-                                    type="text"
-                                    id="title"
-                                    value={newGoalData.title}
-                                    onChange={(e) => setNewGoalData({ ...newGoalData, title: e.target.value })}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                                    Description
-                                </label>
-                                <textarea
-                                    id="description"
-                                    value={newGoalData.description}
-                                    onChange={(e) => setNewGoalData({ ...newGoalData, description: e.target.value })}
-                                    rows={3}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="target_date" className="block text-sm font-medium text-gray-700">
-                                    Target Date
-                                </label>
-                                <input
-                                    type="date"
-                                    id="target_date"
-                                    value={newGoalData.target_date}
-                                    onChange={(e) => setNewGoalData({ ...newGoalData, target_date: e.target.value })}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
-                                    Priority
-                                </label>
-                                <select
-                                    id="priority"
-                                    value={newGoalData.priority}
-                                    onChange={(e) => setNewGoalData({ ...newGoalData, priority: e.target.value })}
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                                >
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
-                                </select>
-                            </div>
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowNewGoalForm(false)}
-                                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                                >
-                                    Create Goal
-                                </button>
-                            </div>
-                        </form>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea
+                            value={newGoal.description}
+                            onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            rows={3}
+                            required
+                        />
                     </div>
-                )}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Status</label>
+                            <select
+                                value={newGoal.status}
+                                onChange={(e) => setNewGoal({ ...newGoal, status: e.target.value as Goal['status'] })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            >
+                                <option value="not_started">Not Started</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="on_hold">On Hold</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Priority</label>
+                            <select
+                                value={newGoal.priority}
+                                onChange={(e) => setNewGoal({ ...newGoal, priority: e.target.value as Goal['priority'] })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            >
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Target Date</label>
+                            <input
+                                type="date"
+                                value={newGoal.target_date}
+                                onChange={(e) => setNewGoal({ ...newGoal, target_date: e.target.value })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Notes</label>
+                        <textarea
+                            value={newGoal.notes}
+                            onChange={(e) => setNewGoal({ ...newGoal, notes: e.target.value })}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            rows={2}
+                        />
+                    </div>
+                    <div className="flex justify-end">
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            Add Goal
+                        </button>
+                    </div>
+                </form>
             </div>
 
             {/* Goals List */}
-            <div className="mt-8">
-                <div className="bg-white shadow overflow-hidden sm:rounded-md">
-                    <ul className="divide-y divide-gray-200">
-                        {goals.map((goal) => (
-                            <li key={goal.id}>
-                                <div className="px-4 py-4 sm:px-6">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div
-                                                    className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                                                        goal.status === 'completed'
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : goal.status === 'in_progress'
-                                                            ? 'bg-blue-100 text-blue-800'
-                                                            : 'bg-gray-100 text-gray-800'
-                                                    }`}
-                                                >
-                                                    {goal.status === 'completed' ? '✓' : goal.progress + '%'}
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h4 className="text-lg font-medium text-gray-900">{goal.title}</h4>
-                                                <p className="mt-1 text-sm text-gray-500">{goal.description}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <span
-                                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                    goal.priority === 'high'
-                                                        ? 'bg-red-100 text-red-800'
-                                                        : goal.priority === 'medium'
-                                                        ? 'bg-yellow-100 text-yellow-800'
-                                                        : 'bg-green-100 text-green-800'
-                                                }`}
-                                            >
-                                                {goal.priority}
-                                            </span>
-                                            <button
-                                                onClick={() => dispatch(deleteGoal(goal.id))}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="mt-2">
-                                        <div className="relative pt-1">
-                                            <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
-                                                <div
-                                                    style={{ width: `${goal.progress}%` }}
-                                                    className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary-500"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="px-6 py-4 border-b">
+                    <h2 className="text-xl font-semibold">Your Goals</h2>
+                </div>
+                <div className="divide-y divide-gray-200">
+                    {goals.map((goal) => (
+                        <div key={goal.id} className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-medium">{goal.title}</h3>
+                                <div className="flex items-center space-x-4">
+                                    <select
+                                        value={goal.status}
+                                        onChange={(e) => handleStatusUpdate(goal.id, e.target.value as Goal['status'])}
+                                        className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    >
+                                        <option value="not_started">Not Started</option>
+                                        <option value="in_progress">In Progress</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="on_hold">On Hold</option>
+                                    </select>
+                                    <button
+                                        onClick={() => handleDelete(goal.id)}
+                                        className="text-red-600 hover:text-red-800"
+                                    >
+                                        Delete
+                                    </button>
                                 </div>
-                            </li>
-                        ))}
-                    </ul>
+                            </div>
+                            <p className="text-gray-600 mb-4">{goal.description}</p>
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                    <span>Progress</span>
+                                    <span>{goal.progress}%</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={goal.progress}
+                                    onChange={(e) => handleProgressUpdate(goal.id, parseInt(e.target.value))}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="mt-4 flex items-center text-sm text-gray-500 space-x-4">
+                                <span>Priority: {goal.priority}</span>
+                                <span>Target: {new Date(goal.target_date).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

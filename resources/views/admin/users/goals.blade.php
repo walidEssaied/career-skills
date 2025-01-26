@@ -23,7 +23,7 @@
                 Back to Profile
             </a>
             <div class="mt-4">
-                <a href="{{ route('users.skills.index', $user) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                <a href="{{ route('admin.users.skills.index', $user) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
                     View Skills
                 </a>
             </div>
@@ -52,13 +52,13 @@
                                 <p class="text-sm text-gray-600">{{ $goal->description }}</p>
                             </div>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>Target Date: {{ $goal->target_date->format('M d, Y') }}</span>
+                                <span>Target Date: {{ $goal->target_date ? $goal->target_date->format('M d, Y') : 'No target date set' }}</span>
                             </div>
                         </div>
                         <div class="ml-4 flex-shrink-0 flex items-center space-x-4">
                             <button onclick="document.getElementById('editGoalModal{{ $goal->id }}').classList.remove('hidden')"
                                 class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                            <form action="{{ route('admin.users.goals.remove', [$user, $goal]) }}" method="POST" class="inline">
+                            <form action="{{ route('admin.users.goals.destroy', [$user, $goal]) }}" method="POST" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900">Remove</button>
@@ -99,7 +99,7 @@
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-            <form action="{{ route('admin.users.goals.add', $user) }}" method="POST">
+            <form action="{{ route('admin.users.goals.store', $user) }}" method="POST">
                 @csrf
                 <div>
                     <div class="mt-3 text-center sm:mt-0 sm:text-left">

@@ -8,11 +8,13 @@ use App\Models\Skill;
 use App\Models\Course;
 use App\Models\CareerGoal;
 use App\Models\CareerPath;
+use App\Models\UserCourse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DemoDataSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         // Create Skills
         $skills = [
@@ -192,11 +194,125 @@ class DemoDataSeeder extends Seeder
                 'growth_potential' => 'Very High',
                 'market_demand' => 'Very High',
             ],
+            [
+                'title' => 'Frontend Developer',
+                'description' => 'Developer specializing in user interfaces and experience',
+                'industry' => 'Software Development',
+                'required_experience' => 2,
+                'salary_range_min' => 65000.00,
+                'salary_range_max' => 130000.00,
+                'growth_potential' => 'High',
+                'market_demand' => 'High',
+            ],
+            [
+                'title' => 'Backend Developer',
+                'description' => 'Developer focusing on server-side logic and databases',
+                'industry' => 'Software Development',
+                'required_experience' => 3,
+                'salary_range_min' => 70000.00,
+                'salary_range_max' => 140000.00,
+                'growth_potential' => 'High',
+                'market_demand' => 'High',
+            ],
         ];
+
+        // First, delete any existing career paths
+        CareerPath::truncate();
+        DB::table('career_path_skills')->truncate();
+        DB::table('career_path_courses')->truncate();
 
         $createdCareerPaths = [];
         foreach ($careerPaths as $path) {
             $createdCareerPaths[] = CareerPath::create($path);
+        }
+
+        // Associate skills with career paths
+        $careerPathSkills = [
+            'Full Stack Developer' => [
+                'JavaScript' => 5,
+                'PHP' => 4,
+                'Laravel' => 4,
+                'React' => 4,
+                'SQL' => 4,
+            ],
+            'UI/UX Designer' => [
+                'UI/UX Design' => 5,
+                'JavaScript' => 3,
+                'React' => 4,
+            ],
+            'DevOps Engineer' => [
+                'Docker' => 5,
+                'AWS' => 5,
+                'Git' => 4,
+                'Python' => 3,
+                'Agile' => 3,
+            ],
+            'Frontend Developer' => [
+                'JavaScript' => 5,
+                'React' => 5,
+                'TypeScript' => 4,
+                'UI/UX Design' => 3,
+            ],
+            'Backend Developer' => [
+                'PHP' => 5,
+                'Laravel' => 5,
+                'SQL' => 5,
+                'Python' => 4,
+                'Docker' => 3,
+            ],
+        ];
+
+        foreach ($careerPathSkills as $pathTitle => $skills) {
+            $path = CareerPath::where('title', $pathTitle)->first();
+            if ($path) {
+                foreach ($skills as $skillName => $importance) {
+                    $skill = Skill::where('name', $skillName)->first();
+                    if ($skill) {
+                        $path->skills()->attach($skill->id, [
+                            'importance_level' => $importance,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // Create demo users if they don't exist
+        if (!User::where('email', 'john@example.com')->exists()) {
+            User::create([
+                'name' => 'John Developer',
+                'email' => 'john@example.com',
+                'password' => Hash::make('password'),
+                'is_admin' => false,
+            ]);
+        }
+
+        if (!User::where('email', 'sarah@example.com')->exists()) {
+            User::create([
+                'name' => 'Sarah Designer',
+                'email' => 'sarah@example.com',
+                'password' => Hash::make('password'),
+                'is_admin' => false,
+            ]);
+        }
+
+        if (!User::where('email', 'mike@example.com')->exists()) {
+            User::create([
+                'name' => 'Mike DevOps',
+                'email' => 'mike@example.com',
+                'password' => Hash::make('password'),
+                'is_admin' => false,
+            ]);
+        }
+
+        if (!User::where('email', 'manager@example.com')->exists()) {
+            User::create([
+                'name' => 'Admin Manager',
+                'email' => 'manager@example.com',
+                'password' => Hash::make('password'),
+                'is_admin' => true,
+            ]);
         }
 
         // Create Users with their skills, courses, and career goals
@@ -217,8 +333,9 @@ class DemoDataSeeder extends Seeder
                 ],
                 'goals' => [
                     [
-                        'career_path_id' => 1,
-                        'target_completion_date' => now()->addMonths(6),
+                        'title' => 'Become a Full Stack Developer',
+                        'description' => 'Master Laravel and Vue.js stack',
+                        'target_date' => now()->addMonths(6),
                         'status' => 'in_progress',
                         'progress' => 30,
                         'notes' => 'Focus on Laravel and Vue.js stack',
@@ -241,8 +358,9 @@ class DemoDataSeeder extends Seeder
                 ],
                 'goals' => [
                     [
-                        'career_path_id' => 2,
-                        'target_completion_date' => now()->addMonths(12),
+                        'title' => 'Become a UI/UX Designer',
+                        'description' => 'Master team leadership and advanced design principles',
+                        'target_date' => now()->addMonths(12),
                         'status' => 'not_started',
                         'progress' => 0,
                         'notes' => 'Focus on team leadership and advanced design principles',
@@ -265,8 +383,9 @@ class DemoDataSeeder extends Seeder
                 ],
                 'goals' => [
                     [
-                        'career_path_id' => 3,
-                        'target_completion_date' => now()->addMonths(3),
+                        'title' => 'Become a DevOps Engineer',
+                        'description' => 'Master AWS services and best practices',
+                        'target_date' => now()->addMonths(3),
                         'status' => 'in_progress',
                         'progress' => 40,
                         'notes' => 'Focus on AWS services and best practices',
@@ -284,8 +403,9 @@ class DemoDataSeeder extends Seeder
                 ],
                 'goals' => [
                     [
-                        'career_path_id' => 3,
-                        'target_completion_date' => now()->addMonths(8),
+                        'title' => 'Become a DevOps Engineer',
+                        'description' => 'Master Agile transformation and team training',
+                        'target_date' => now()->addMonths(8),
                         'status' => 'in_progress',
                         'progress' => 20,
                         'notes' => 'Focus on Agile transformation and team training',
@@ -301,7 +421,7 @@ class DemoDataSeeder extends Seeder
             
             unset($userData['skills'], $userData['courses'], $userData['goals']);
             
-            $user = User::create($userData);
+            $user = User::where('email', $userData['email'])->first();
             
             foreach ($skills as $skill) {
                 $user->skills()->attach($skill['id'], [
@@ -311,15 +431,30 @@ class DemoDataSeeder extends Seeder
             }
             
             foreach ($courses as $course) {
-                $user->courses()->attach($course['id'], [
+                UserCourse::create([
+                    'user_id' => $user->id,
+                    'course_id' => $course['id'],
                     'progress' => $course['progress'],
                     'status' => $course['status'],
                     'completion_date' => $course['status'] === 'completed' ? now() : null,
                 ]);
             }
             
+            // Create career goals for the user
             foreach ($goals as $goal) {
-                $user->careerGoals()->create($goal);
+                $targetDate = now();
+                if (isset($goal['target_date'])) {
+                    $targetDate = $goal['target_date'];
+                }
+
+                $user->careerGoals()->create([
+                    'title' => $goal['title'],
+                    'description' => $goal['description'],
+                    'target_date' => $targetDate,
+                    'status' => $goal['status'],
+                    'progress' => $goal['progress'],
+                    'notes' => $goal['notes']
+                ]);
             }
         }
     }

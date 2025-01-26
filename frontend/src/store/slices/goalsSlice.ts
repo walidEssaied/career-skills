@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api, { endpoints } from '../../services/api';
 
-interface Goal {
+export interface Goal {
     id: number;
     title: string;
     description: string;
@@ -9,23 +9,36 @@ interface Goal {
     priority: 'low' | 'medium' | 'high';
     progress: number;
     target_date: string;
-    career_path_id: number;
+    notes: string | null;
     created_at: string;
     updated_at: string;
 }
 
+export interface GoalStatistics {
+    by_status: {
+        status: string;
+        count: number;
+    }[];
+    total_goals: number;
+    completed_goals: number;
+    average_progress: number;
+}
+
 interface GoalsState {
     items: Goal[];
+    statistics: GoalStatistics | null;
     loading: boolean;
     error: string | null;
 }
 
 const initialState: GoalsState = {
     items: [],
+    statistics: null,
     loading: false,
     error: null,
 };
 
+// Async Thunks
 export const fetchGoals = createAsyncThunk(
     'goals/fetchGoals',
     async () => {
@@ -55,6 +68,22 @@ export const deleteGoal = createAsyncThunk(
     async (id: number) => {
         await api.delete(`${endpoints.goals}/${id}`);
         return id;
+    }
+);
+
+export const updateGoalProgress = createAsyncThunk(
+    'goals/updateProgress',
+    async ({ id, progress }: { id: number; progress: number }) => {
+        const response = await api.put(`${endpoints.goals}/${id}/progress`, { progress });
+        return response.data;
+    }
+);
+
+export const fetchGoalStatistics = createAsyncThunk(
+    'goals/fetchStatistics',
+    async () => {
+        const response = await api.get(`${endpoints.goals}/statistics`);
+        return response.data;
     }
 );
 
@@ -118,8 +147,37 @@ const goalsSlice = createSlice({
             .addCase(deleteGoal.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || 'Failed to delete goal';
+            })
+            // Update Progress
+            .addCase(updateGoalProgress.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateGoalProgress.fulfilled, (state, action) => {
+                state.loading = false;
+                const index = state.items.findIndex(goal => goal.id === action.payload.id);
+                if (index !== -1) {
+                    state.items[index] = action.payload;
+                }
+            })
+            .addCase(updateGoalProgress.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to update progress';
+            })
+            // Fetch Statistics
+            .addCase(fetchGoalStatistics.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchGoalStatistics.fulfilled, (state, action) => {
+                state.loading = false;
+                state.statistics = action.payload;
+            })
+            .addCase(fetchGoalStatistics.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to fetch statistics';
             });
-    },
+    }
 });
 
 export default goalsSlice.reducer;
