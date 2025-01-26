@@ -60,4 +60,24 @@ class GoalController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function statistics()
+    {
+        $user_id = Auth::id();
+        
+        $total_goals = Goal::where('user_id', $user_id)->count();
+        $completed_goals = Goal::where('user_id', $user_id)
+            ->where('status', 'completed')
+            ->count();
+        $in_progress_goals = Goal::where('user_id', $user_id)
+            ->where('status', 'in_progress')
+            ->count();
+        
+        return response()->json([
+            'total_goals' => $total_goals,
+            'completed_goals' => $completed_goals,
+            'in_progress_goals' => $in_progress_goals,
+            'completion_rate' => $total_goals > 0 ? round(($completed_goals / $total_goals) * 100) : 0
+        ]);
+    }
 }

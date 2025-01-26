@@ -61,7 +61,7 @@ export const endpoints = {
     createGoal: '/goals',
     updateGoal: (goalId: number) => `/goals/${goalId}`,
     deleteGoal: (goalId: number) => `/goals/${goalId}`,
-    goalStatistics: '/goals/statistics',
+    goalStatistics: '/goals-statistics',
     
     // Course endpoints
     courses: '/courses',

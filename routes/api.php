@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Goals routes
     Route::apiResource('goals', GoalController::class);
+    Route::get('goals-statistics', [GoalController::class, 'statistics']);
 
     // Career Goals routes
     Route::apiResource('career-goals', CareerGoalController::class);

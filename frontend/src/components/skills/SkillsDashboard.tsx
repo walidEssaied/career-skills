@@ -65,7 +65,7 @@ const SkillsDashboard: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Skills Overview */}
                 <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-2xl font-bold mb-4">Skills Overview</h2>
+                    <h2 className="text-2xl font-bold mb-4 text-black">Skills Overview</h2>
                     <div className="w-full h-64">
                         <Doughnut data={getSkillProgressData()} />
                     </div>
@@ -73,7 +73,7 @@ const SkillsDashboard: React.FC = () => {
 
                 {/* Recommended Skills */}
                 <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-2xl font-bold mb-4">Recommended Skills</h2>
+                    <h2 className="text-2xl font-bold mb-4 text-black">Recommended Skills</h2>
                     <div className="space-y-4">
                         {recommendedSkills.map((skill) => (
                             <div key={skill.id} className="border-b pb-4">
@@ -93,11 +93,11 @@ const SkillsDashboard: React.FC = () => {
 
             {/* Skills by Category */}
             <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-6">Skills by Category</h2>
+                <h2 className="text-2xl font-bold mb-6 text-black">Skills by Category</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {Object.entries(skillsByCategory).map(([category, categorySkills]) => (
                         <div key={category} className="bg-white rounded-lg shadow p-6">
-                            <h3 className="text-xl font-semibold mb-4">{category}</h3>
+                            <h3 className="text-xl font-semibold mb-4 text-black">{category}</h3>
                             <div className="space-y-4">
                                 {categorySkills.map((skill) => (
                                     <div key={skill.id} className="border-b pb-4">

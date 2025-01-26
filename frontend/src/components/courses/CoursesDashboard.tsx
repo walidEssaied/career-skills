@@ -160,8 +160,8 @@ const CourseCard: React.FC<CourseCardProps> = ({ course, onRate, onProgressUpdat
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="p-6">
-                <h3 className="text-lg font-semibold mb-2">{course.title}</h3>
-                <p className="text-gray-600 mb-4 line-clamp-2">{course.description}</p>
+                <h3 className="text-lg font-semibold mb-2 text-black">{course.title}</h3>
+                <p className="text-gray-600 mb-4 line-clamp-2 ">{course.description}</p>
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                         {[1, 2, 3, 4, 5].map((star) => (

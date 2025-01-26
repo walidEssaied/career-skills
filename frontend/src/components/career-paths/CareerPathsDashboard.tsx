@@ -113,13 +113,13 @@ const CareerPathsDashboard: React.FC = () => {
             {/* Career Paths List */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <div className="px-6 py-4 border-b">
-                    <h2 className="text-xl font-semibold">Career Paths</h2>
+                    <h2 className="text-xl font-semibold text-black">Career Paths</h2>
                 </div>
                 <div className="divide-y divide-gray-200">
                     {careerPaths.map((path) => (
                         <div key={path.id} className="p-6">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-medium">{path.title}</h3>
+                                <h3 className="text-lg font-medium text-black">{path.title}</h3>
                                 <div>
                                     {isUserEnrolled(path.id) ? (
                                         <button

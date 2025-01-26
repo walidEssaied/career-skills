@@ -15,13 +15,10 @@ export interface Goal {
 }
 
 export interface GoalStatistics {
-    by_status: {
-        status: string;
-        count: number;
-    }[];
     total_goals: number;
     completed_goals: number;
-    average_progress: number;
+    in_progress_goals: number;
+    completion_rate: number;
 }
 
 interface GoalsState {
@@ -82,7 +79,7 @@ export const updateGoalProgress = createAsyncThunk(
 export const fetchGoalStatistics = createAsyncThunk(
     'goals/fetchStatistics',
     async () => {
-        const response = await api.get(`${endpoints.goals}/statistics`);
+        const response = await api.get(endpoints.goalStatistics);
         return response.data;
     }
 );
