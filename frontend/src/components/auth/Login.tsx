@@ -12,7 +12,7 @@ const Login: React.FC = () => {
     const location = useLocation();
     const { loading, error } = useSelector((state: RootState) => state.auth);
 
-    const from = location.state?.from?.pathname || '/dashboard';
+    const from = location.state?.from?.pathname || '/';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
