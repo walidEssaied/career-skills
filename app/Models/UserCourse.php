@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserCourse extends Model
+class UserCourse extends Pivot
 {
+    protected $table = 'user_courses';
+
     protected $fillable = [
         'user_id',
         'course_id',
